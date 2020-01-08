@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
@@ -20,8 +19,7 @@ public class RubyScraperApplication {
 	public static List<List<String>> scraper(File path) {
 		List<List<String>> parsedData = new ArrayList<>();
 		for(int i = 0; i <= 19; i++) {
-			List<File> filesToBeParsed = FileUtils.getFileByDirectoryAndName(
-					new File(String.valueOf(FileUtils.handleResourceDirectories(path))));
+			List<File> filesToBeParsed = FileUtils.getFileByDirectoryAndName(new File(String.valueOf(FileUtils.handleResourceDirectories(path))));
 			for (File file : filesToBeParsed) {
 				parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(file))));
 			}
