@@ -7,7 +7,7 @@ import java.util.List;
 
 public class FileUtils {
 
-    public static List<File> getFileByDirectoryAndName(File fileDirectory){
+    public static List<File> getFileByDirectory(File fileDirectory){
         List<File> files = Arrays.asList(fileDirectory.listFiles());
         if(files.size() > 0 && files != null) {
             return files;
@@ -29,13 +29,14 @@ public class FileUtils {
         return bufferedReader;
     }
 
-    public static File handleResourceDirectories(File initialDirectoryPath) {
+    public static List<File> getResourceDirectories(File initialDirectoryPath) {
         List<File> directoryFiles = Arrays.asList(initialDirectoryPath.listFiles());
+        List<File> isDirectory = new ArrayList<>();
         for(File file : directoryFiles) {
             if(file.isDirectory()) {
-                return file;
+                isDirectory.add(file);
             }
         }
-        return null;
+        return isDirectory;
     }
 }

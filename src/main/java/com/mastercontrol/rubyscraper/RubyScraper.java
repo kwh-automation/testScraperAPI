@@ -1,11 +1,22 @@
 package com.mastercontrol.rubyscraper;
 
-import org.springframework.context.annotation.Bean;
-
 import java.io.*;
 import java.util.*;
 
 class RubyScraper {
+
+    public static List<List<String>> scraper(File path) {
+        List<List<String>> parsedData = new ArrayList<>();
+        List<File> directories = FileUtils.getResourceDirectories(path);
+        for(File directory : directories) {
+            List<File> filesToBeParsed = FileUtils.getFileByDirectory(directory);
+            for (File file : filesToBeParsed) {
+                parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(file))));
+            }
+        }
+        return parsedData;
+    }
+
     public static List<String> getExecutedCodeFromTests(File rubyFile) {
         List<String> values = new ArrayList<>();
         values.add(rubyFile.getName());
