@@ -38,11 +38,15 @@ class RubyScraper {
         return values;
     }
 
-    public static List<String> createTestListFromKeyValue(List<List<String>> scrapedData, String key) {
+    public static List<String> createTestListFromKeyValue(List<List<String>> scrapedData, String key, String secondKey) {
         List<String> categoryList = new ArrayList<>();
         for(int i = 0; i < scrapedData.size(); i++) {
             for(int a = 0; a < scrapedData.get(i).size(); a++) {
-                if (scrapedData.get(i).get(a).contains(key)) {
+                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
+                    categoryList.add(scrapedData.get(i).get(0));
+                    break;
+                }
+                else if (scrapedData.get(i).get(a).contains(key) && scrapedData.get(i).get(a).contains(secondKey)) {
                     categoryList.add(scrapedData.get(i).get(0));
                     break;
                 }

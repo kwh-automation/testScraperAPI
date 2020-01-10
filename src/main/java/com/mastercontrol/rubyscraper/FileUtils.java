@@ -3,13 +3,20 @@ package com.mastercontrol.rubyscraper;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FileUtils {
 
     public static List<File> getFileByDirectory(File fileDirectory){
-        List<File> files = Arrays.asList(fileDirectory.listFiles());
+        List<File> files = new LinkedList<File>(Arrays.asList(fileDirectory.listFiles()));
         if(files.size() > 0 && files != null) {
+            for(int i = 0; i < files.size(); i++) {
+                if(files.get(i).isDirectory()) {
+                    files.addAll(new LinkedList<File>(Arrays.asList(files.get(i).listFiles())));
+                    files.remove(i);
+                }
+            }
             return files;
         }
         return null;
@@ -23,6 +30,9 @@ public class FileUtils {
             inputStream = new FileInputStream(fileList.get(0));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+        if(inputStream == null) {
+           System.out.println(rubyFile);
         }
         InputStreamReader is = new InputStreamReader(inputStream);
         BufferedReader bufferedReader = new BufferedReader(is);
@@ -38,5 +48,10 @@ public class FileUtils {
             }
         }
         return isDirectory;
+    }
+
+    public static File setMyMasterControlRootPath(String path) {
+        File mcPath = new File(path);
+        return mcPath;
     }
 }
