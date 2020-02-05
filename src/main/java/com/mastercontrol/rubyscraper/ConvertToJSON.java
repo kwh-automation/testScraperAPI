@@ -1,5 +1,4 @@
 package com.mastercontrol.rubyscraper;
-import org.json.JSONArray.*;
 
 import java.util.List;
 

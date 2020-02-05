@@ -1,6 +1,7 @@
 package com.mastercontrol.rubyscraper;
 
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -15,6 +16,13 @@ public class FileUtils {
                 if(files.get(i).isDirectory()) {
                     files.addAll(new LinkedList<File>(Arrays.asList(files.get(i).listFiles())));
                     files.remove(i);
+                    i--;
+                }
+            }
+            for(int i = 0; i < files.size(); i++) {
+                if(!String.valueOf(files.get(i)).endsWith(".rb")) {
+                    files.remove(i);
+                    i--;
                 }
             }
             return files;
@@ -54,4 +62,5 @@ public class FileUtils {
         File mcPath = new File(path);
         return mcPath;
     }
+
 }

@@ -1,21 +1,16 @@
 package com.mastercontrol.rubyscraper;
-import com.mastercontrol.rubyscraper.config.*;
-import java.io.File;
-import java.util.List;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import static com.mastercontrol.rubyscraper.RubyScraper.scraper;
+import java.util.Collections;
 
+@SpringBootApplication
 public class RubyScraperApplication {
 
 	public static void main(String[] args) {
-		scrapeAndOutputData(ScraperConfig.pathToFunctionalTests, "form", "phase");
-		scrapeAndOutputData(ScraperConfig.productionRecordsValidation, "api", "configuration");
+		SpringApplication app = new SpringApplication(RubyScraperApplication.class);
+		app.setDefaultProperties(Collections.singletonMap("server.port", "8083"));
+		app.run(args);
+		System.out.println(RubyScraper.scrapeFunctionalAndValidationTests("batch_record", "api_config"));
 	}
-
-	public static void scrapeAndOutputData(String pathToTests, String key, String secondKey) {
-		List<List<String>> scrapedData = scraper(new File(pathToTests));
-		List<String> searchResults = RubyScraper.createTestListFromKeyValue(scrapedData, key, secondKey);
-		System.out.println("Tests found using search term(s): " + key + ", " +  secondKey + "\n" + searchResults);
-	}
-
 }

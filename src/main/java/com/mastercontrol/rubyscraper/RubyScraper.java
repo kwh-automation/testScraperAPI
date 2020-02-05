@@ -1,17 +1,87 @@
 package com.mastercontrol.rubyscraper;
 
+import com.mastercontrol.rubyscraper.config.ScraperConfig;
+
 import java.io.*;
 import java.util.*;
 
-class RubyScraper {
+
+public class RubyScraper {
+
+//    private String keyword;
+//    private String keywordTwo;
+//
+//    public RubyScraper(String keyword, String keywordTwo) {
+//        this.keyword = keyword;
+//        this.keywordTwo = keywordTwo;
+//    }
+
+    public static List<String> scrapeFunctionalAndValidationTests(String key, String secondKey) {
+        List<String> validationList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, false);
+        List<String> functionalList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, false);
+        List<String> allResults = new ArrayList<>();
+        allResults.addAll(validationList);
+        allResults.addAll(functionalList);
+        return allResults;
+    }
+
+
+    public static List<String> scrapeCodeUsingKeywordAndKeyword(String pathToTests, String key, String secondKey, boolean returnTestPaths) {
+        List<List<String>> scrapedData = scraper(new File(pathToTests));
+        List<String> searchResults = RubyScraper.getListUsingKeywordSearchWithOptionalAnd(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
+        if(returnTestPaths) {
+            return getFilePathOfMatchingTests(searchResults);
+        }
+        return searchResults;
+    }
+
+    public static List<String> getFilePathOfMatchingTests(List<String> searchResults) {
+        List<File> validationPaths = scrapeForFilePath(new File((ScraperConfig.pathToValidationFRS)));
+        List<File> functionalPaths = scrapeForFilePath(new File((ScraperConfig.pathToFunctionalTests)));
+        List<String> allTestPaths = new ArrayList<>();
+        allTestPaths.addAll(getFilePathsFromSearchResults(validationPaths, searchResults));
+        allTestPaths.addAll(getFilePathsFromSearchResults(functionalPaths, searchResults));
+        return allTestPaths;
+    }
+
+    public static List<String> getFilePathsFromSearchResults(List<File> filePaths, List<String> searchResults) {
+        List<String> testPaths = new ArrayList<>();
+        for(int i = 0; i < filePaths.size(); i++) {
+            for(int n = 0; n < searchResults.size(); n++) {
+                if((String.valueOf(filePaths.get(i)).contains((searchResults.get(n))))) {
+                    testPaths.add(String.valueOf(filePaths.get(i)));
+                }
+            }
+        }
+        return testPaths;
+    }
+
+    public static List<String> scrapeCodeUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
+        List<List<String>> scrapedData = scraper(new File(pathToTests));
+        List<String> searchResults = RubyScraper.getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
+        System.out.println(searchResults.size() + " tests found using search term(s): " + key + " AND / OR " +  secondKey + "\n" + searchResults);
+        return searchResults;
+    }
 
     public static List<List<String>> scraper(File path) {
         List<List<String>> parsedData = new ArrayList<>();
         List<File> directories = FileUtils.getResourceDirectories(path);
         for(File directory : directories) {
             List<File> filesToBeParsed = FileUtils.getFileByDirectory(directory);
-            for (File file : filesToBeParsed) {
-                parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(file))));
+            for (int i = 0; i < filesToBeParsed.size(); i++) {
+                parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(filesToBeParsed.get(i)))));
+            }
+        }
+        return parsedData;
+    }
+
+    public static List<File> scrapeForFilePath(File path) {
+        List<File> parsedData = new ArrayList<>();
+        List<File> directories = FileUtils.getResourceDirectories(path);
+        for(File directory : directories) {
+            List<File> filesToBeParsed = FileUtils.getFileByDirectory(directory);
+            for (int i = 0; i < filesToBeParsed.size(); i++) {
+                parsedData.addAll(scrapeFileDataForPath(filesToBeParsed.get(i)));
             }
         }
         return parsedData;
@@ -24,10 +94,8 @@ class RubyScraper {
             String strLine;
             BufferedReader bufferedReader = FileUtils.getReaderForFile(rubyFile);
             while ((strLine = bufferedReader.readLine()) != null) {
-                if (strLine.contains("@mc")) {
-                    String tempName = strLine.trim();
-                    values.add(tempName);
-                }
+                String tempName = strLine.trim();
+                values.add(tempName.toLowerCase());
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {
@@ -38,7 +106,13 @@ class RubyScraper {
         return values;
     }
 
-    public static List<String> createTestListFromKeyValue(List<List<String>> scrapedData, String key, String secondKey) {
+    public static List<File> getRubyFilePaths(File rubyFile) {
+        List<File> filePaths = new ArrayList<>();
+        filePaths.add(new File(rubyFile.getAbsolutePath()));
+        return filePaths;
+    }
+
+    public static List<String> getListUsingKeywordSearchWithOptionalAnd(List<List<String>> scrapedData, String key, String secondKey) {
         List<String> categoryList = new ArrayList<>();
         for(int i = 0; i < scrapedData.size(); i++) {
             for(int a = 0; a < scrapedData.get(i).size(); a++) {
@@ -46,7 +120,29 @@ class RubyScraper {
                     categoryList.add(scrapedData.get(i).get(0));
                     break;
                 }
-                else if (scrapedData.get(i).get(a).contains(key) && scrapedData.get(i).get(a).contains(secondKey)) {
+                else if (scrapedData.get(i).get(a).contains(key)) {
+                    for (int count = 0; count < scrapedData.get(i).size(); count++) {
+                        if (scrapedData.get(i).get(count).contains(secondKey)) {
+                            categoryList.add(scrapedData.get(i).get(0));
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return categoryList;
+    }
+
+    public static List<String> getListUsingKeywordSearchWithOptionalOr(List<List<String>> scrapedData, String key, String secondKey) {
+        List<String> categoryList = new ArrayList<>();
+        for(int i = 0; i < scrapedData.size(); i++) {
+            for(int a = 0; a < scrapedData.get(i).size(); a++) {
+                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
+                    categoryList.add(scrapedData.get(i).get(0));
+                    break;
+                }
+                else if (scrapedData.get(i).get(a).contains(key) || scrapedData.get(i).get(a).contains(secondKey)) {
                     categoryList.add(scrapedData.get(i).get(0));
                     break;
                 }
@@ -58,6 +154,13 @@ class RubyScraper {
     public static List<String> scrapeFileData(File rubyFile) {
         List<String> unparsedValues = RubyScraper.getExecutedCodeFromTests(rubyFile);
         List<String> completeValues = new ArrayList<>();
+        completeValues.addAll(unparsedValues);
+        return completeValues;
+    }
+
+    public static List<File> scrapeFileDataForPath(File rubyFile) {
+        List<File> unparsedValues = RubyScraper.getRubyFilePaths(rubyFile);
+        List<File> completeValues = new ArrayList<>();
         completeValues.addAll(unparsedValues);
         return completeValues;
     }
