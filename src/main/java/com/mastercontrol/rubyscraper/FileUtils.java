@@ -9,7 +9,7 @@ import java.util.List;
 
 public class FileUtils {
 
-    public static List<File> getFileByDirectory(File fileDirectory){
+    public static List<File> getFilesFromDirectory(File fileDirectory){
         List<File> files = new LinkedList<File>(Arrays.asList(fileDirectory.listFiles()));
         if(files.size() > 0 && files != null) {
             for(int i = 0; i < files.size(); i++) {
@@ -47,7 +47,7 @@ public class FileUtils {
         return bufferedReader;
     }
 
-    public static List<File> getResourceDirectories(File initialDirectoryPath) {
+    public static List<File> getDirectories(File initialDirectoryPath) {
         List<File> directoryFiles = Arrays.asList(initialDirectoryPath.listFiles());
         List<File> isDirectory = new ArrayList<>();
         for(File file : directoryFiles) {
@@ -61,6 +61,19 @@ public class FileUtils {
     public static File setMyMasterControlRootPath(String path) {
         File mcPath = new File(path);
         return mcPath;
+    }
+
+    public static List<String> stripTestPath(List<String> results) {
+        List<String> stripList = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            String append = results.get(i).replace("\\", "/");
+            StringBuilder sb = new StringBuilder(append);
+            sb.delete(0, 19);
+            sb.insert(0, "\"");
+            sb.insert(sb.length(), "\"");
+            stripList.add(String.valueOf(sb));
+        }
+        return stripList;
     }
 
 }
