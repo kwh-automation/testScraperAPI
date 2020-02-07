@@ -11,6 +11,6 @@ public class RubyScraperApplication {
 		SpringApplication app = new SpringApplication(RubyScraperApplication.class);
 		app.setDefaultProperties(Collections.singletonMap("server.port", "8083"));
 		app.run(args);
-		System.out.println(RubyScraper.scrapeFunctionalAndValidationTests("batch_record", "with_limits", false));
+		System.out.println(RubyScraper.scrapeTests("batch_record", "with_limits", true, true, false));
 	}
 }

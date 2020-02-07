@@ -8,17 +8,15 @@ import java.util.*;
 
 public class RubyScraper {
 
-//    private String keyword;
-//    private String keywordTwo;
-//
-//    public RubyScraper(String keyword, String keywordTwo) {
-//        this.keyword = keyword;
-//        this.keywordTwo = keywordTwo;
-//    }
-
-    public static List<String> scrapeFunctionalAndValidationTests(String key, String secondKey) {
-        List<String> validationList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, false);
-        List<String> functionalList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, false);
+    public static List<String> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
+        List<String> validationList = new ArrayList<>();
+        if(validation) {
+            validationList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, testPaths);
+        }
+        List<String> functionalList = new ArrayList<>();
+        if(functional) {
+            functionalList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, testPaths);
+        }
         List<String> allResults = new ArrayList<>();
         allResults.addAll(validationList);
         allResults.addAll(functionalList);
@@ -39,21 +37,24 @@ public class RubyScraper {
         List<File> validationPaths = scrapeForFilePath(new File((ScraperConfig.pathToValidationFRS)));
         List<File> functionalPaths = scrapeForFilePath(new File((ScraperConfig.pathToFunctionalTests)));
         List<String> allTestPaths = new ArrayList<>();
-        allTestPaths.addAll(getFilePathsFromSearchResults(validationPaths, searchResults));
-        allTestPaths.addAll(getFilePathsFromSearchResults(functionalPaths, searchResults));
+        allTestPaths.addAll(getFilePathsFromSearchResults(validationPaths, functionalPaths, searchResults));
         return allTestPaths;
     }
 
-    public static List<String> getFilePathsFromSearchResults(List<File> filePaths, List<String> searchResults) {
+    public static List<String> getFilePathsFromSearchResults(List<File> functionalFilePaths, List<File> validationFilePaths, List<String> searchResults) {
         List<String> testPaths = new ArrayList<>();
-        for(int i = 0; i < filePaths.size(); i++) {
+        List<File> compiledPaths = new ArrayList<>();
+        compiledPaths.addAll(functionalFilePaths);
+        compiledPaths.addAll(validationFilePaths);
+        for(int i = 0; i < compiledPaths.size(); i++) {
             for(int n = 0; n < searchResults.size(); n++) {
-                if((String.valueOf(filePaths.get(i)).contains((searchResults.get(n))))) {
-                    testPaths.add(String.valueOf(filePaths.get(i)));
+                if((String.valueOf(compiledPaths.get(i)).contains((searchResults.get(n))))) {
+                    testPaths.add(String.valueOf(compiledPaths.get(i)));
                 }
             }
         }
-        return testPaths;
+        List<String> strippedPaths = FileUtils.stripTestPath(testPaths);
+        return strippedPaths;
     }
 
     public static List<String> scrapeCodeUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
@@ -65,9 +66,9 @@ public class RubyScraper {
 
     public static List<List<String>> scraper(File path) {
         List<List<String>> parsedData = new ArrayList<>();
-        List<File> directories = FileUtils.getResourceDirectories(path);
+        List<File> directories = FileUtils.getDirectories(path);
         for(File directory : directories) {
-            List<File> filesToBeParsed = FileUtils.getFileByDirectory(directory);
+            List<File> filesToBeParsed = FileUtils.getFilesFromDirectory(directory);
             for (int i = 0; i < filesToBeParsed.size(); i++) {
                 parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(filesToBeParsed.get(i)))));
             }
@@ -77,9 +78,9 @@ public class RubyScraper {
 
     public static List<File> scrapeForFilePath(File path) {
         List<File> parsedData = new ArrayList<>();
-        List<File> directories = FileUtils.getResourceDirectories(path);
+        List<File> directories = FileUtils.getDirectories(path);
         for(File directory : directories) {
-            List<File> filesToBeParsed = FileUtils.getFileByDirectory(directory);
+            List<File> filesToBeParsed = FileUtils.getFilesFromDirectory(directory);
             for (int i = 0; i < filesToBeParsed.size(); i++) {
                 parsedData.addAll(scrapeFileDataForPath(filesToBeParsed.get(i)));
             }
