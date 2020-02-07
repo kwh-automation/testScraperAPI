@@ -33,6 +33,28 @@ public class RubyScraper {
         return searchResults;
     }
 
+    public static List<String> getListUsingKeywordSearchWithOptionalAnd(List<List<String>> scrapedData, String key, String secondKey) {
+        List<String> categoryList = new ArrayList<>();
+        for(int i = 0; i < scrapedData.size(); i++) {
+            for(int a = 0; a < scrapedData.get(i).size(); a++) {
+                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
+                    categoryList.add(scrapedData.get(i).get(0));
+                    break;
+                }
+                else if (scrapedData.get(i).get(a).contains(key)) {
+                    for (int count = 0; count < scrapedData.get(i).size(); count++) {
+                        if (scrapedData.get(i).get(count).contains(secondKey)) {
+                            categoryList.add(scrapedData.get(i).get(0));
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return categoryList;
+    }
+
     public static List<String> getFilePathOfMatchingTests(List<String> searchResults) {
         List<File> validationPaths = scrapeForFilePath(new File((ScraperConfig.pathToValidationFRS)));
         List<File> functionalPaths = scrapeForFilePath(new File((ScraperConfig.pathToFunctionalTests)));
@@ -111,28 +133,6 @@ public class RubyScraper {
         List<File> filePaths = new ArrayList<>();
         filePaths.add(new File(rubyFile.getAbsolutePath()));
         return filePaths;
-    }
-
-    public static List<String> getListUsingKeywordSearchWithOptionalAnd(List<List<String>> scrapedData, String key, String secondKey) {
-        List<String> categoryList = new ArrayList<>();
-        for(int i = 0; i < scrapedData.size(); i++) {
-            for(int a = 0; a < scrapedData.get(i).size(); a++) {
-                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
-                    categoryList.add(scrapedData.get(i).get(0));
-                    break;
-                }
-                else if (scrapedData.get(i).get(a).contains(key)) {
-                    for (int count = 0; count < scrapedData.get(i).size(); count++) {
-                        if (scrapedData.get(i).get(count).contains(secondKey)) {
-                            categoryList.add(scrapedData.get(i).get(0));
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-        return categoryList;
     }
 
     public static List<String> getListUsingKeywordSearchWithOptionalOr(List<List<String>> scrapedData, String key, String secondKey) {
