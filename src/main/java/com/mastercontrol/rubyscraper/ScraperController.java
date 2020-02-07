@@ -15,7 +15,7 @@ public class ScraperController {
     @CrossOrigin("*")
     @GetMapping("/keywords/{keywordOne}/{keywordTwo}")
     public List<String> rubyScraper(@PathVariable ("keywordOne") String keywordOne, @PathVariable ("keywordTwo") String keywordTwo) {
-        List<String> results = RubyScraper.scrapeFunctionalAndValidationTests(keywordOne, keywordTwo);
+        List<String> results = RubyScraper.scrapeTests(keywordOne, keywordTwo, true, true, false);
         return results;
     }
 }
