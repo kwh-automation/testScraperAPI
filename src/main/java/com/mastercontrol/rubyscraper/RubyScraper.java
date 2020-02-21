@@ -10,14 +10,14 @@ public class RubyScraper {
 
     public static List<String> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
         List<String> validationList = new ArrayList<>();
-        if(validation) {
-            validationList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, testPaths);
-        }
         List<String> functionalList = new ArrayList<>();
-        if(functional) {
-            functionalList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, testPaths);
-        }
         List<String> allResults = new ArrayList<>();
+
+        if(validation)
+            validationList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, testPaths);
+        if(functional)
+            functionalList = RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, testPaths);
+
         allResults.addAll(validationList);
         allResults.addAll(functionalList);
         return allResults;
