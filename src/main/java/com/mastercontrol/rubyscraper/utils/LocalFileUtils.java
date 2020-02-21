@@ -1,4 +1,4 @@
-package com.mastercontrol.rubyscraper;
+package com.mastercontrol.rubyscraper.utils;
 
 import java.io.*;
 import java.net.URL;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class LocalFileUtils {
 
-    public static List<File> getFilesFromDirectory(File fileDirectory){
+    public List<File> getFilesFromDirectory(File fileDirectory){
         List<File> files = new LinkedList<File>(Arrays.asList(fileDirectory.listFiles()));
         if(files.size() > 0 && files != null) {
             for(int i = 0; i < files.size(); i++) {
@@ -30,24 +30,7 @@ public class LocalFileUtils {
         return null;
     }
 
-    public static BufferedReader getReaderForFile(File rubyFile) {
-        List<File> fileList = new ArrayList<>();
-        fileList.add(rubyFile);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(fileList.get(0));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if(inputStream == null) {
-           System.out.println(rubyFile);
-        }
-        InputStreamReader is = new InputStreamReader(inputStream);
-        BufferedReader bufferedReader = new BufferedReader(is);
-        return bufferedReader;
-    }
-
-    public static List<File> getDirectories(File initialDirectoryPath) {
+    public List<File> getDirectories(File initialDirectoryPath) {
         List<File> directoryFiles = Arrays.asList(initialDirectoryPath.listFiles());
         List<File> isDirectory = new ArrayList<>();
         for(File file : directoryFiles) {
@@ -58,12 +41,12 @@ public class LocalFileUtils {
         return isDirectory;
     }
 
-    public static File setMyMasterControlRootPath(String path) {
+    public File setMyMasterControlRootPath(String path) {
         File mcPath = new File(path);
         return mcPath;
     }
 
-    public static List<String> stripTestPath(List<String> results) {
+    public List<String> stripTestPath(List<String> results) {
         List<String> stripList = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             String append = results.get(i).replace("\\", "/");

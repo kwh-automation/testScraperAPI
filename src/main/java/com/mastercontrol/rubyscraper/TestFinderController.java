@@ -2,6 +2,7 @@ package com.mastercontrol.rubyscraper;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,7 +11,9 @@ import java.util.List;
 @Setter
 @RestController
 @CrossOrigin("*")
-public class RubyScraperController {
+public class TestFinderController {
+    @Autowired
+    TestFinderService testFinderService;
 
     @CrossOrigin("*")
     @GetMapping("/keywords/{keywordOne}/{keywordTwo}/{validation}/{functional}/{testPaths}")
@@ -39,7 +42,7 @@ public class RubyScraperController {
         } else {
             testPaths = false;
         }
-        List<String> results = RubyScraperService.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
+        List<String> results = testFinderService.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
         return results;
     }
 }
