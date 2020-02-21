@@ -27,6 +27,7 @@ public class RubyScraper {
         List<File> compiledPaths = new ArrayList<>();
         compiledPaths.addAll(functionalFilePaths);
         compiledPaths.addAll(validationFilePaths);
+
         for(int i = 0; i < compiledPaths.size(); i++) {
             for(int n = 0; n < searchResults.size(); n++) {
                 if((String.valueOf(compiledPaths.get(i)).contains((searchResults.get(n))))) {
@@ -34,31 +35,33 @@ public class RubyScraper {
                 }
             }
         }
-        List<String> strippedPaths = localFileUtils.stripTestPath(testPaths);
+
+        List<String> strippedPaths = localFileUtils.stripAndBuildTestPath(testPaths);
         return strippedPaths;
     }
 
     public List<List<String>> scraper(File path) {
         List<List<String>> parsedData = new ArrayList<>();
         List<File> directories = localFileUtils.getDirectories(path);
-        for(File directory : directories) {
-            List<File> filesToBeParsed = localFileUtils.getFilesFromDirectory(directory);
-            for (int i = 0; i < filesToBeParsed.size(); i++) {
-                parsedData.add(getExecutedCodeFromTests(new File(String.valueOf(filesToBeParsed.get(i)))));
-            }
-        }
+
+         directories.stream()
+                 .forEach(directory -> localFileUtils.getFilesFromDirectory(directory).stream()
+                         .forEach(file -> parsedData.add(getExecutedCodeFromTests(new File(String.valueOf(file))))));
+
         return parsedData;
     }
 
     public List<File> getFilePath(File path) {
         List<File> parsedData = new ArrayList<>();
         List<File> directories = localFileUtils.getDirectories(path);
+
         for(File directory : directories) {
             List<File> filesToBeParsed = localFileUtils.getFilesFromDirectory(directory);
             for (int i = 0; i < filesToBeParsed.size(); i++) {
                 parsedData.addAll(scrapeFileDataForPath(filesToBeParsed.get(i)));
             }
         }
+
         return parsedData;
     }
 
