@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FileUtils {
+public class LocalFileUtils {
 
     public static List<File> getFilesFromDirectory(File fileDirectory){
         List<File> files = new LinkedList<File>(Arrays.asList(fileDirectory.listFiles()));

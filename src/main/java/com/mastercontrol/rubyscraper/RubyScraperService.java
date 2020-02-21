@@ -1,28 +1,29 @@
 package com.mastercontrol.rubyscraper;
 
 import com.mastercontrol.rubyscraper.config.ScraperConfig;
+import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.*;
 
-
-public class RubyScraper {
+@Service
+public class RubyScraperService {
 
     public static List<String> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
         List<String> allResults = new ArrayList<>();
         if(validation) {
-            allResults.addAll(RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, testPaths));
+            allResults.addAll(RubyScraperService.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToValidationFRS, key, secondKey, testPaths));
         }
         if(functional) {
-            allResults.addAll(RubyScraper.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, testPaths));
+            allResults.addAll(RubyScraperService.scrapeCodeUsingKeywordAndKeyword(ScraperConfig.pathToFunctionalTests, key, secondKey, testPaths));
         }
         return allResults;
     }
 
-
     public static List<String> scrapeCodeUsingKeywordAndKeyword(String pathToTests, String key, String secondKey, boolean returnTestPaths) {
         List<List<String>> scrapedData = scraper(new File(pathToTests));
-        List<String> searchResults = RubyScraper.getListUsingKeywordSearchWithOptionalAnd(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
+        List<String> searchResults = RubyScraperService.getListUsingKeywordSearchWithOptionalAnd(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
         if(returnTestPaths) {
             return getFilePathOfMatchingTests(searchResults);
         }
@@ -52,8 +53,8 @@ public class RubyScraper {
     }
 
     public static List<String> getFilePathOfMatchingTests(List<String> searchResults) {
-        List<File> validationPaths = scrapeForFilePath(new File((ScraperConfig.pathToValidationFRS)));
-        List<File> functionalPaths = scrapeForFilePath(new File((ScraperConfig.pathToFunctionalTests)));
+        List<File> validationPaths = getFilePath(new File((ScraperConfig.pathToValidationFRS)));
+        List<File> functionalPaths = getFilePath(new File((ScraperConfig.pathToFunctionalTests)));
         List<String> allTestPaths = new ArrayList<>();
         allTestPaths.addAll(getFilePathsFromSearchResults(validationPaths, functionalPaths, searchResults));
         return allTestPaths;
@@ -71,34 +72,34 @@ public class RubyScraper {
                 }
             }
         }
-        List<String> strippedPaths = FileUtils.stripTestPath(testPaths);
+        List<String> strippedPaths = LocalFileUtils.stripTestPath(testPaths);
         return strippedPaths;
     }
 
     public static List<String> scrapeCodeUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
         List<List<String>> scrapedData = scraper(new File(pathToTests));
-        List<String> searchResults = RubyScraper.getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
+        List<String> searchResults = RubyScraperService.getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
         System.out.println(searchResults.size() + " tests found using search term(s): " + key + " AND / OR " +  secondKey + "\n" + searchResults);
         return searchResults;
     }
 
     public static List<List<String>> scraper(File path) {
         List<List<String>> parsedData = new ArrayList<>();
-        List<File> directories = FileUtils.getDirectories(path);
+        List<File> directories = LocalFileUtils.getDirectories(path);
         for(File directory : directories) {
-            List<File> filesToBeParsed = FileUtils.getFilesFromDirectory(directory);
+            List<File> filesToBeParsed = LocalFileUtils.getFilesFromDirectory(directory);
             for (int i = 0; i < filesToBeParsed.size(); i++) {
-                parsedData.add(RubyScraper.scrapeFileData(new File(String.valueOf(filesToBeParsed.get(i)))));
+                parsedData.add(RubyScraperService.getExecutedCodeFromTests(new File(String.valueOf(filesToBeParsed.get(i)))));
             }
         }
         return parsedData;
     }
 
-    public static List<File> scrapeForFilePath(File path) {
+    public static List<File> getFilePath(File path) {
         List<File> parsedData = new ArrayList<>();
-        List<File> directories = FileUtils.getDirectories(path);
+        List<File> directories = LocalFileUtils.getDirectories(path);
         for(File directory : directories) {
-            List<File> filesToBeParsed = FileUtils.getFilesFromDirectory(directory);
+            List<File> filesToBeParsed = LocalFileUtils.getFilesFromDirectory(directory);
             for (int i = 0; i < filesToBeParsed.size(); i++) {
                 parsedData.addAll(scrapeFileDataForPath(filesToBeParsed.get(i)));
             }
@@ -110,19 +111,12 @@ public class RubyScraper {
         List<String> values = new ArrayList<>();
         values.add(rubyFile.getName());
         try {
-            String strLine;
-            BufferedReader bufferedReader = FileUtils.getReaderForFile(rubyFile);
-            while ((strLine = bufferedReader.readLine()) != null) {
-                String tempName = strLine.trim();
-                values.add(tempName.toLowerCase());
-            }
-            bufferedReader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            values.addAll(FileUtils.readLines(rubyFile, "UTF-8"));
+            return values;
         } catch (IOException e) {
             e.printStackTrace();
+            return values;
         }
-        return values;
     }
 
     public static List<File> getRubyFilePaths(File rubyFile) {
@@ -148,17 +142,7 @@ public class RubyScraper {
         return categoryList;
     }
 
-    public static List<String> scrapeFileData(File rubyFile) {
-        List<String> unparsedValues = RubyScraper.getExecutedCodeFromTests(rubyFile);
-        List<String> completeValues = new ArrayList<>();
-        completeValues.addAll(unparsedValues);
-        return completeValues;
-    }
-
     public static List<File> scrapeFileDataForPath(File rubyFile) {
-        List<File> unparsedValues = RubyScraper.getRubyFilePaths(rubyFile);
-        List<File> completeValues = new ArrayList<>();
-        completeValues.addAll(unparsedValues);
-        return completeValues;
+        return RubyScraperService.getRubyFilePaths(rubyFile);
     }
 }

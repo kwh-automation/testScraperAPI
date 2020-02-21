@@ -1,6 +1,6 @@
 package com.mastercontrol.rubyscraper.config;
 
-import static com.mastercontrol.rubyscraper.FileUtils.setMyMasterControlRootPath;
+import static com.mastercontrol.rubyscraper.LocalFileUtils.setMyMasterControlRootPath;
 
 public class ScraperConfig {
 

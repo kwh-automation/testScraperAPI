@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @RestController
 @CrossOrigin("*")
-public class ScraperController {
+public class RubyScraperController {
 
     @CrossOrigin("*")
     @GetMapping("/keywords/{keywordOne}/{keywordTwo}/{validation}/{functional}/{testPaths}")
@@ -39,7 +39,7 @@ public class ScraperController {
         } else {
             testPaths = false;
         }
-        List<String> results = RubyScraper.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
+        List<String> results = RubyScraperService.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
         return results;
     }
 }
