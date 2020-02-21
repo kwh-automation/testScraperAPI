@@ -10,11 +10,11 @@ import java.util.List;
 public class LocalFileUtils {
 
     public List<File> getFilesFromDirectory(File fileDirectory){
-        List<File> files = new LinkedList<File>(Arrays.asList(fileDirectory.listFiles()));
+        List<File> files = new LinkedList<>(Arrays.asList(fileDirectory.listFiles()));
         if(files.size() > 0 && files != null) {
             for(int i = 0; i < files.size(); i++) {
                 if(files.get(i).isDirectory()) {
-                    files.addAll(new LinkedList<File>(Arrays.asList(files.get(i).listFiles())));
+                    files.addAll(new LinkedList<>(Arrays.asList(files.get(i).listFiles())));
                     files.remove(i);
                     i--;
                 }
@@ -41,12 +41,7 @@ public class LocalFileUtils {
         return isDirectory;
     }
 
-    public File setMyMasterControlRootPath(String path) {
-        File mcPath = new File(path);
-        return mcPath;
-    }
-
-    public List<String> stripTestPath(List<String> results) {
+    public List<String> stripAndBuildTestPath(List<String> results) {
         List<String> stripList = new ArrayList<>();
         for (int i = 0; i < results.size(); i++) {
             String append = results.get(i).replace("\\", "/");
