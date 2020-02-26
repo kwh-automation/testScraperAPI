@@ -17,7 +17,7 @@ public class TestFinderController {
 
     @CrossOrigin("*")
     @GetMapping("/keywords/{keywordOne}/{keywordTwo}/{validation}/{functional}/{testPaths}")
-    public List<String> rubyScraper(@PathVariable ("keywordOne") String keywordOne,
+    public List<TestData> rubyScraper(@PathVariable ("keywordOne") String keywordOne,
                                     @PathVariable ("keywordTwo") String keywordTwo,
                                     @PathVariable ("validation") String validationString,
                                     @PathVariable ("functional") String functionalString,
@@ -42,7 +42,7 @@ public class TestFinderController {
         } else {
             testPaths = false;
         }
-        List<String> results = testFinderService.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
+        List<TestData> results = testFinderService.scrapeTests(keywordOne, keywordTwo, validation, functional, testPaths);
         return results;
     }
 }

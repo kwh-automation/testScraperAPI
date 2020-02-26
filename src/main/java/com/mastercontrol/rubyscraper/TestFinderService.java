@@ -13,45 +13,42 @@ public class TestFinderService {
     RubyScraper rubyScraper = new RubyScraper();
     RubyScraperConfig rubyScraperConfig = new RubyScraperConfig();
 
-    public List<String> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
-        List<String> allResults = new ArrayList<>();
+    public List<TestData> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
+        List<TestData> allResults = new ArrayList<>();
         if(validation) {
-            allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToValidationFRS(), key, secondKey, testPaths));
+            allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToValidationFRS(), key, secondKey));
         }
         if(functional) {
-            allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToFunctionalTests(), key, secondKey, testPaths));
+            allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToFunctionalTests(), key, secondKey));
         }
         return allResults;
     }
 
-    public List<String> getMatchingTestsUsingKeywordAndKeyword(String pathToTests, String key, String secondKey, boolean returnTestPaths) {
-        List<List<String>> scrapedData = rubyScraper.scraper(new File(pathToTests));
-        List<String> searchResults = getListUsingKeywordSearchWithOptionalAnd(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
-        if(returnTestPaths) {
-            return rubyScraper.getFilePathOfMatchingTests(searchResults);
-        }
+    public List<TestData> getMatchingTestsUsingKeywordAndKeyword(String pathToTests, String key, String secondKey) {
+        List<TestData> scrapedData = rubyScraper.scraper(new File(pathToTests));
+        List<TestData> searchResults = getListUsingKeywordSearchWithOptionalAnd(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
         return searchResults;
     }
 
-    public List<String> getMatchingTestsUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
-        List<List<String>> scrapedData = rubyScraper.scraper(new File(pathToTests));
-        List<String> searchResults = getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
+    public List<TestData> getMatchingTestsUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
+        List<TestData> scrapedData = rubyScraper.scraper(new File(pathToTests));
+        List<TestData> searchResults = getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
         System.out.println(searchResults.size() + " tests found using search term(s): " + key + " AND / OR " +  secondKey + "\n" + searchResults);
         return searchResults;
     }
 
-    public List<String> getListUsingKeywordSearchWithOptionalAnd(List<List<String>> scrapedData, String key, String secondKey) {
-        List<String> categoryList = new ArrayList<>();
+    public List<TestData> getListUsingKeywordSearchWithOptionalAnd(List<TestData> scrapedData, String key, String secondKey) {
+        List<TestData> categoryList = new ArrayList<>();
         for(int i = 0; i < scrapedData.size(); i++) {
-            for(int a = 0; a < scrapedData.get(i).size(); a++) {
-                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
-                    categoryList.add(scrapedData.get(i).get(0));
+            for(int a = 0; a < scrapedData.size(); a++) {
+                if (scrapedData.get(i).testData.contains(key) && secondKey.isEmpty()) {
+                    categoryList.add(scrapedData.get(i));
                     break;
                 }
-                else if (scrapedData.get(i).get(a).contains(key)) {
-                    for (int count = 0; count < scrapedData.get(i).size(); count++) {
-                        if (scrapedData.get(i).get(count).contains(secondKey)) {
-                            categoryList.add(scrapedData.get(i).get(0));
+                else if (scrapedData.get(i).testData.contains(key)) {
+                    for (int count = 0; count < scrapedData.size(); count++) {
+                        if (scrapedData.get(i).testData.contains(secondKey)) {
+                            categoryList.add(scrapedData.get(i));
                             break;
                         }
                     }
@@ -62,16 +59,16 @@ public class TestFinderService {
         return categoryList;
     }
 
-    public List<String> getListUsingKeywordSearchWithOptionalOr(List<List<String>> scrapedData, String key, String secondKey) {
-        List<String> categoryList = new ArrayList<>();
+    public List<TestData> getListUsingKeywordSearchWithOptionalOr(List<TestData> scrapedData, String key, String secondKey) {
+        List<TestData> categoryList = new ArrayList<>();
         for(int i = 0; i < scrapedData.size(); i++) {
-            for(int a = 0; a < scrapedData.get(i).size(); a++) {
-                if (scrapedData.get(i).get(a).contains(key) && secondKey.isEmpty()) {
-                    categoryList.add(scrapedData.get(i).get(0));
+            for(int a = 0; a < scrapedData.size(); a++) {
+                if (scrapedData.get(i).testData.contains(key) && secondKey.isEmpty()) {
+                    categoryList.add(scrapedData.get(i));
                     break;
                 }
-                else if (scrapedData.get(i).get(a).contains(key) || scrapedData.get(i).get(a).contains(secondKey)) {
-                    categoryList.add(scrapedData.get(i).get(0));
+                else if (scrapedData.get(i).testData.contains(key) || scrapedData.get(i).testData.contains(secondKey)) {
+                    categoryList.add(scrapedData.get(i));
                     break;
                 }
             }

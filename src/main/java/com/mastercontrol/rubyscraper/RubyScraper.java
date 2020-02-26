@@ -2,19 +2,21 @@ package com.mastercontrol.rubyscraper;
 
 import com.mastercontrol.rubyscraper.config.RubyScraperConfig;
 import com.mastercontrol.rubyscraper.utils.LocalFileUtils;
+import lombok.val;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RubyScraper {
 
     RubyScraperConfig rubyScraperConfig = new RubyScraperConfig();
     LocalFileUtils localFileUtils = new LocalFileUtils();
 
-    public List<String> getFilePathOfMatchingTests(List<String> searchResults) {
+    public List<String> getFilePathOfMatchingTests(List<TestData> searchResults) {
         List<File> validationPaths = getFilePath(new File((rubyScraperConfig.getPathToValidationFRS())));
         List<File> functionalPaths = getFilePath(new File((rubyScraperConfig.getPathToFunctionalTests())));
         List<String> allTestPaths = new ArrayList<>();
@@ -22,7 +24,7 @@ public class RubyScraper {
         return allTestPaths;
     }
 
-    public List<String> getFilePathsFromSearchResults(List<File> functionalFilePaths, List<File> validationFilePaths, List<String> searchResults) {
+    public List<String> getFilePathsFromSearchResults(List<File> functionalFilePaths, List<File> validationFilePaths, List<TestData> searchResults) {
         List<String> testPaths = new ArrayList<>();
         List<File> compiledPaths = new ArrayList<>();
         compiledPaths.addAll(functionalFilePaths);
@@ -30,7 +32,7 @@ public class RubyScraper {
 
         for(int i = 0; i < compiledPaths.size(); i++) {
             for(int n = 0; n < searchResults.size(); n++) {
-                if((String.valueOf(compiledPaths.get(i)).contains((searchResults.get(n))))) {
+                if((String.valueOf(compiledPaths.get(i)).contains((searchResults.get(n).testData)))) {
                     testPaths.add(String.valueOf(compiledPaths.get(i)));
                 }
             }
@@ -40,15 +42,25 @@ public class RubyScraper {
         return strippedPaths;
     }
 
-    public List<List<String>> scraper(File path) {
-        List<List<String>> parsedData = new ArrayList<>();
+    public List<TestData> scraper(File path) {
         List<File> directories = localFileUtils.getDirectories(path);
+        List<TestData> parsedData = new ArrayList<>();
+        /*directories.stream()
+                    .forEach(directory -> localFileUtils.getFilesFromDirectory(directory)
+                    .stream()
+                    .forEach(file -> parsedData.add(readFileToString(new File(String.valueOf(file))))));*/
 
-         directories.stream()
-                 .forEach(directory -> localFileUtils.getFilesFromDirectory(directory).stream()
-                         .forEach(file -> parsedData.add(getExecutedCodeFromTests(new File(String.valueOf(file))))));
+        directories.stream().forEach(directory -> {
+                parsedData.addAll(localFileUtils.getFilesFromDirectory(directory).stream()
+                    .map(file -> readFileToString(new File(String.valueOf(file)))).collect(Collectors.toList()));
+        });
+        /*directories.stream()
+                .forEach(directory -> localFileUtils.getFilesFromDirectory(directory)
+                        .stream()
+                        .map(file -> this::readFileToString(new File(String.valueOf(file)))))*/
+                        //.forEach(file -> parsedData.add(readFileToString(new File(String.valueOf(file))))));
 
-        return parsedData;
+         return parsedData;
     }
 
     public List<File> getFilePath(File path) {
@@ -65,15 +77,15 @@ public class RubyScraper {
         return parsedData;
     }
 
-    public List<String> getExecutedCodeFromTests(File rubyFile) {
-        List<String> values = new ArrayList<>();
-        values.add(rubyFile.getName());
+    public TestData readFileToString(File rubyFile) {
+        TestData data = new TestData();
+        data.testName = rubyFile.getName();
         try {
-            values.addAll(FileUtils.readLines(rubyFile, "UTF-8"));
-            return values;
+            data.testData = FileUtils.readFileToString(rubyFile, "UTF-8");
+            return data;
         } catch (IOException e) {
             e.printStackTrace();
-            return values;
+            return data;
         }
     }
 
