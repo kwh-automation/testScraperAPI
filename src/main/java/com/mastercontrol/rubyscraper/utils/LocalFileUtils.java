@@ -30,9 +30,8 @@ public class LocalFileUtils {
     }
 
     public List<File> getDirectories(File initialDirectoryPath) {
-        List<File> directoryFiles = Arrays.asList(initialDirectoryPath.listFiles());
         List<File> isDirectory = new ArrayList<>();
-        for(File file : directoryFiles) {
+        for(File file : Arrays.asList(initialDirectoryPath.listFiles())) {
             if(file.isDirectory()) {
                 isDirectory.add(file);
             }

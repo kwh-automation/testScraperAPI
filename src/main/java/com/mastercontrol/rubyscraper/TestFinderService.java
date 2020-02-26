@@ -12,8 +12,9 @@ public class TestFinderService {
 
     RubyScraper rubyScraper = new RubyScraper();
     RubyScraperConfig rubyScraperConfig = new RubyScraperConfig();
+    TestData testData = new TestData();
 
-    public List<TestData> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
+    public List<String> scrapeTests(String key, String secondKey, boolean validation, boolean functional, boolean testPaths) {
         List<TestData> allResults = new ArrayList<>();
         if(validation) {
             allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToValidationFRS(), key, secondKey));
@@ -21,7 +22,10 @@ public class TestFinderService {
         if(functional) {
             allResults.addAll(getMatchingTestsUsingKeywordAndKeyword(rubyScraperConfig.getPathToFunctionalTests(), key, secondKey));
         }
-        return allResults;
+        if(testPaths) {
+            return rubyScraper.getFilePathOfMatchingTests(allResults);
+        }
+        return testData.getTestNamesAsStringList(allResults);
     }
 
     public List<TestData> getMatchingTestsUsingKeywordAndKeyword(String pathToTests, String key, String secondKey) {
@@ -30,6 +34,7 @@ public class TestFinderService {
         return searchResults;
     }
 
+    //Possible that this might be used in a later iteration
     public List<TestData> getMatchingTestsUsingKeywordOrKeyword(String pathToTests, String key, String secondKey) {
         List<TestData> scrapedData = rubyScraper.scraper(new File(pathToTests));
         List<TestData> searchResults = getListUsingKeywordSearchWithOptionalOr(scrapedData, key.toLowerCase(), secondKey.toLowerCase());
@@ -38,41 +43,23 @@ public class TestFinderService {
     }
 
     public List<TestData> getListUsingKeywordSearchWithOptionalAnd(List<TestData> scrapedData, String key, String secondKey) {
-        List<TestData> categoryList = new ArrayList<>();
-        for(int i = 0; i < scrapedData.size(); i++) {
-            for(int a = 0; a < scrapedData.size(); a++) {
-                if (scrapedData.get(i).testData.contains(key) && secondKey.isEmpty()) {
-                    categoryList.add(scrapedData.get(i));
-                    break;
-                }
-                else if (scrapedData.get(i).testData.contains(key)) {
-                    for (int count = 0; count < scrapedData.size(); count++) {
-                        if (scrapedData.get(i).testData.contains(secondKey)) {
-                            categoryList.add(scrapedData.get(i));
-                            break;
-                        }
-                    }
-                    break;
-                }
+        List<TestData> keywordSearchResults = new ArrayList<>();
+        for(TestData dataList: scrapedData) {
+            if (secondKey.isEmpty() && dataList.testData.contains(key)
+                || dataList.testData.contains(key) && dataList.testData.contains(secondKey)) {
+                keywordSearchResults.add(dataList);
             }
         }
-        return categoryList;
+        return keywordSearchResults;
     }
 
     public List<TestData> getListUsingKeywordSearchWithOptionalOr(List<TestData> scrapedData, String key, String secondKey) {
-        List<TestData> categoryList = new ArrayList<>();
-        for(int i = 0; i < scrapedData.size(); i++) {
-            for(int a = 0; a < scrapedData.size(); a++) {
-                if (scrapedData.get(i).testData.contains(key) && secondKey.isEmpty()) {
-                    categoryList.add(scrapedData.get(i));
-                    break;
-                }
-                else if (scrapedData.get(i).testData.contains(key) || scrapedData.get(i).testData.contains(secondKey)) {
-                    categoryList.add(scrapedData.get(i));
-                    break;
-                }
+        List<TestData> keywordSearchResults = new ArrayList<>();
+        for (TestData dataList : scrapedData) {
+            if (dataList.testData.contains(key) || dataList.testData.contains(secondKey)) {
+                keywordSearchResults.add(dataList);
             }
         }
-        return categoryList;
+        return keywordSearchResults;
     }
 }
