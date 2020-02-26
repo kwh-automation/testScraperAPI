@@ -43,10 +43,7 @@ public class LocalFileUtils {
     public List<String> stripAndBuildTestPath(List<String> results) {
         List<String> stripList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        // for (int i = 0; i < results.size(); i++) {
         for (String result: results) {
-            //  nString append = result.replace("\\", "/");
-            //StringBuilder sb = new StringBuilder(results.get(i).replace("\\", "/");
             sb.append(result.replace("\\", "/"));
             sb.delete(0, 19);
             sb.insert(0, "\"");
